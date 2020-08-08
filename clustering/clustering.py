@@ -1,10 +1,8 @@
-from face_recognition.test.recognize_dataset_random import train_data
 from sklearn.preprocessing import LabelEncoder
-from face_recognition.clustering.functions import *
+from clustering-redistribution.clustering.functions import *
 import numpy as np
 import logging, pickle, time
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
-from face_recognition.clustering.svm_functions import train_svms
 
 def train_cluster(n_clusters=None):
     # initializing
@@ -66,47 +64,6 @@ def test_model():
     logger.info("Resources successfully loaded")
 
     centroids=[clusters[i]["center"] for i in range(len(clusters))]
-    svms_metrics=[]
-    print("------------------------------------------------------------------")
-    for idc, cluster in enumerate(clusters):
-        acc=0
-        tot=0
-        # logger.info("Testing classes {}".format(cluster["classes"]))
-        for name in cluster["classes"]:
-            data=dataset[name]
-            tot+=len(data)
-            for vector in data:
-                pred=cluster["svm"]["model"].predict_proba(vector)[0]
-                values=[]
-                arg1=np.array(pred).argmax()
-                values.append(pred[arg1])
-                pred[arg1]=0
-                arg2=np.array(pred).argmax()
-                values.append(pred[arg2])
-                pred[arg2]=0
-                arg3=np.array(pred).argmax()
-                values.append(pred[arg3])
-                # logger.info("Dic for this cluster: {}".format(cluster["svm"]["dic"]))
-                test=cluster["svm"]["dic"][arg1]
-                test2=cluster["svm"]["dic"][arg2]
-                test3 = cluster["svm"]["dic"][arg3]
-                if test == name:
-                    acc+=1
-                elif test2 == name:
-                    acc+=1
-                elif test3 == name:
-                    acc+=1
-
-        print("------------------------------------------------------------------")
-        logger.info("Cluster's {} classes: {}".format(
-            idc, cluster["classes"]
-        ))
-        logger.info("Accuracy for cluster's {} svm: {}".format(
-            idc, acc/tot
-        ))
-        svms_metrics.append(acc/tot)
-        print("------------------------------------------------------------------")
-
 
     y_predict= []
     for user, vec in dataset.items():
@@ -147,18 +104,13 @@ def test_model():
 
     return sum(users_acc)/len(users_acc), [len(c["classes"]) for c in clusters]
 
-def data_process():
-    x, y, a, b, c = train_data(80)
-    save_train_features(x)
-    save_test_features(y)
 
 def cluster_process():
     train_cluster()
     logger.info("Cluster training process concluded")
-    train_svms()
-    logger.info("Svms for clusters were treined")
+    test_model()
 
 # data_process()
 # cluster_process()
 acc,c=test_model()
-print(acc, c)
+logger.info("Accuracy for model: {}".format(acc))
