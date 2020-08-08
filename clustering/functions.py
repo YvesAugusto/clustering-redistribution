@@ -2,7 +2,7 @@ from sklearn.cluster import KMeans
 from numpy.linalg import norm as l2
 import pickle, os, random, time
 import numpy as np
-from face_recognition.log import logger
+from clustering-redistribution.log import logger
 from collections import Counter
 
 TRAIN_PATH = os.getenv("TRAIN_PATH")
